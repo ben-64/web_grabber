@@ -5,17 +5,19 @@ import http.server
 import socketserver
 import ssl
 import os
+import urllib.parse
 
 PORT = 8000
 
 class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        path = os.path.join(os.getcwd(),self.path[1:]) if self.path[0] == "/" else os.path.join(os.getcwd(),self.path)
+        uri = urllib.parse.unquote(self.path)
+        path = os.path.join(os.getcwd(),uri[1:]) if uri[0] == "/" else os.path.join(os.getcwd(),uri)
         if "?" in path:
             path = path[:path.find("?")]
         if not os.path.exists(path):
             with open(self.output,"a") as f:
-                f.write(self.path + "\n")
+                f.write(uri + "\n")
         return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
 
